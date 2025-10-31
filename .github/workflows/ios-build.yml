@@ -3,6 +3,8 @@ name: Build iOS (Capacitor)
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - 'v*.*.*'
 
@@ -119,3 +121,11 @@ jobs:
           name: ios-archive
           path: build/App.xcarchive
           if-no-files-found: ignore
+
+      - name: Create GitHub Release and attach artifacts (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/export/*.ipa
+            build/App.xcarchive
