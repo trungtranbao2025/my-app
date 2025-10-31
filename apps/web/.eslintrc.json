@@ -1,0 +1,12 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "rules": {
+    "@next/next/no-img-element": "off"
+  },
+  "overrides": [
+    {
+      "files": ["*.config.js", "*.config.cjs", "*.config.ts", "postcss.config.js", "tailwind.config.ts", "vitest.config.ts", "playwright.config.ts"],
+      "env": { "node": true }
+    }
+  ]
+}

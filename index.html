@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+      <script>
+        // CRITICAL: Force hash location BEFORE any React code runs
+        // This must be the FIRST script to execute
+        (function() {
+          const currentUrl = window.location.href
+          const hasHash = currentUrl.includes('#/')
+          
+          // If we're in file:// protocol (Electron) and no hash present
+          if (currentUrl.startsWith('file://') && !hasHash) {
+            // Add hash and reload immediately
+            const newUrl = currentUrl.split('#')[0] + '#/'
+            console.log('🔧 No hash detected, reloading with:', newUrl)
+            window.location.replace(newUrl)
+          return
+          }
+          
+          console.log('✅ Hash location verified:', window.location.hash)
+        })();
+
+        // Global error logger to help diagnose white screen issues in packaged app
+        window.addEventListener('error', (e) => {
+          console.error('Global error:', e?.error || e?.message || e)
+        })
+        window.addEventListener('unhandledrejection', (e) => {
+          console.error('Unhandled rejection:', e?.reason || e)
+        })
+        document.addEventListener('DOMContentLoaded', () => {
+          setTimeout(() => {
+            const root = document.getElementById('root')
+            if (root && root.childElementCount === 0) {
+              const el = document.createElement('div')
+              el.style.cssText = 'position:fixed;bottom:10px;left:10px;background:#fee;border:1px solid #f99;padding:8px 12px;color:#900;font-family:monospace;z-index:99999'
+              el.textContent = 'Renderer not mounted. Check Console (F12) for errors.'
+              document.body.appendChild(el)
+              console.warn('Renderer not mounted after 2s')
+            }
+          }, 2000)
+        })
+      </script>
+    <title>Phần mềm quản lý dự án</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

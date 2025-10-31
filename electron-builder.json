@@ -1,0 +1,67 @@
+{
+  "appId": "com.ibstbim.qlda",
+  "productName": "IBST BIM - Quản lý Dự án",
+  "copyright": "Copyright © 2025 IBST BIM",
+  "asar": true,
+  "compression": "maximum",
+  "directories": {
+    "output": "dist-electron",
+    "buildResources": "electron/build"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/main.cjs",
+    "electron/preload.cjs",
+    "package.json",
+    "!**/*.map",
+    "!**/*.ts",
+    "!**/*.md"
+  ],
+  "win": {
+    "icon": "electron/build/icon.ico",
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "artifactName": "${productName}-${version}-Setup.${ext}",
+    "requestedExecutionLevel": "asInvoker",
+    "verifyUpdateCodeSignature": false
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "IBST BIM - Quản lý Dự án",
+    "deleteAppDataOnUninstall": false,
+    "differentialPackage": true,
+    "displayLanguageSelector": false,
+    "installerLanguages": ["vi_VN", "en_US"],
+    "language": "1066",
+    "perMachine": false,
+  "runAfterFinish": false,
+    "menuCategory": true
+  },
+  "portable": {
+    "artifactName": "${productName}-${version}-Portable.${ext}",
+    "requestExecutionLevel": "user"
+  },
+  "extraResources": [
+    {
+      "from": "electron/resources",
+      "to": "resources",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "electron/build/icon.ico",
+      "to": "icon.ico"
+    }
+  ]
+}

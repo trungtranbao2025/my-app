@@ -1,0 +1,23 @@
+{
+  "extends": ["development"],
+  "connector": { "name": "local" },
+  "formatters": ["stylish"],
+  "hints": {
+    // Correct hint id for this rule in webhint is "compat-api/create-element-svg"
+    "compat-api/create-element-svg": "off"
+  },
+  // Keep webhint away from generated assets
+  "ignoredUrls": [
+    {
+      "domain": ".*",
+      "patterns": [
+        ".*/node_modules/.*",
+        ".*/dist/.*",
+        ".*/build/.*",
+        ".*/\\.next/.*",
+        ".*/out/.*",
+        ".*/coverage/.*"
+      ]
+    }
+  ]
+}

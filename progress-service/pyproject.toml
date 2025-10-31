@@ -1,0 +1,27 @@
+[project]
+name = "progress-service"
+version = "0.1.0"
+description = "Project progress computation API"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{name="QLDA Team"}]
+
+[project.dependencies]
+fastapi = "^0.115.0"
+uvicorn = {version="^0.30.0", extras=["standard"]}
+pydantic = "^2.9.0"
+python-dotenv = "^1.0.1"
+httpx = "^0.27.0"
+prometheus-client = "^0.20.0"
+
+# Optional integrations; keep minimal
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-q"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
+
+[tool.black]
+line-length = 100

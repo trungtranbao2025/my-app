@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Connection</title>
+</head>
+<body>
+    <h1>Test Supabase Connection</h1>
+    <div id="status">Đang kiểm tra...</div>
+    
+    <script type="module">
+        const supabaseUrl = 'https://emdlwigmrwypudpsmslp.supabase.co'
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtZGx3aWdtcnd5cHVkcHNtc2xwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk2NDk3NjgsImV4cCI6MjA3NTIyNTc2OH0.M0vkZnW0UIfBb8QyxjO6RtsXowtO2-coSY4epeCb27o'
+        
+        console.log('Supabase URL:', supabaseUrl)
+        console.log('Has Key:', !!supabaseAnonKey)
+        
+        const statusEl = document.getElementById('status')
+        statusEl.innerHTML = `
+            <p>✅ Supabase URL: ${supabaseUrl}</p>
+            <p>✅ Anon Key: ${supabaseAnonKey.substring(0, 50)}...</p>
+            <p style="color: green;">Connection config OK! Vào console để xem details.</p>
+        `
+    </script>
+</body>
+</html>

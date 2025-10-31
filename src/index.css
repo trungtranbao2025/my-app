@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Times New Roman", serif;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+@layer base {
+  body {
+    @apply bg-gradient-to-br from-sky-50 via-cyan-50 to-emerald-50 text-gray-900 font-serif min-h-screen;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  }
+  
+  /* Button size variants */
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm rounded-md;
+  }
+  .btn-lg {
+    @apply px-5 py-3 text-base rounded-xl;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-600 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  }
+  
+  .btn-danger {
+    @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  }
+  
+  .btn-success {
+    @apply btn bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2;
+  }
+  
+  .btn-warning {
+    @apply btn bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2;
+  }
+  
+  .card {
+    @apply bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 border border-cyan-100 hover:shadow-xl transition-shadow;
+  }
+  
+  .input {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+  }
+  
+  .page-container {
+    @apply w-full min-h-[calc(100vh-4rem)] flex flex-col gap-6 py-6;
+  }
+}
+
+/* Material Design Animations */
+@layer utilities {
+  /* Responsive auto-fit grids */
+  .grid-autofit-56 { /* min 14rem (224px) */
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+  .grid-autofit-64 { /* min 16rem (256px) */
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+  .grid-autofit-72 { /* min 18rem (288px) */
+    grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  }
+  .grid-autofit-200 { /* min 200px */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .grid-autofit-240 { /* min 240px */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .animate-slideDown {
+    animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .animate-scaleIn {
+    animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
