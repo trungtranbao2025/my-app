@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { checkForUpdates, reloadApp, CURRENT_VERSION } from '../utils/versionControl'
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
@@ -10,6 +10,7 @@ const UpdateChecker = () => {
   const [updateInfo, setUpdateInfo] = useState(null)
   const [showBanner, setShowBanner] = useState(false)
   const [checking, setChecking] = useState(false)
+  const forceToastShownRef = useRef(false)
 
   useEffect(() => {
     // Kiểm tra ngay khi mount
@@ -33,7 +34,9 @@ const UpdateChecker = () => {
         setShowBanner(true)
         
         // Nếu bắt buộc cập nhật, hiện thông báo không thể đóng
-        if (info.forceUpdate) {
+        if (info.forceUpdate && !forceToastShownRef.current) {
+          // Chặn hiển thị trùng lặp (ví dụ check lại theo chu kỳ)
+          forceToastShownRef.current = true
           toast((t) => (
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
