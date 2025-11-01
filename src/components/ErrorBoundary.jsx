@@ -1,6 +1,6 @@
 import React from 'react'
 // Namespace import to avoid named-export issues on some bundlers
-import * as versionControl from '../utils/versionControl'
+import versionControl from '../utils/versionControl'
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

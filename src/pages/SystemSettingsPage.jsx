@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 // Namespace import to avoid named-export mismatch in mobile bundle
-import * as versionControl from '../utils/versionControl'
+import versionControl from '../utils/versionControl'
 import toast from 'react-hot-toast'
 import { 
   ArrowPathIcon, 

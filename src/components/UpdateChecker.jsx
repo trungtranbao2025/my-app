@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 // Use namespace import to avoid named-export bundling issues on mobile (Capacitor)
-import * as versionControl from '../utils/versionControl'
+import versionControl from '../utils/versionControl'
 import { ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 

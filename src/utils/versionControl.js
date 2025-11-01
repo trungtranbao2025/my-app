@@ -7,13 +7,15 @@ import { supabase } from '../lib/supabase'
 import { isSupabaseReachable } from './network'
 
 // Phiên bản hiện tại của ứng dụng (cập nhật mỗi khi release)
-export const CURRENT_VERSION = '1.0.2'
-export const BUILD_DATE = new Date('2025-11-01').getTime()
+// NOTE: To avoid mobile bundlers having trouble with named exports,
+// we keep everything internal and export a single default object at the end.
+const CURRENT_VERSION = '1.0.2'
+const BUILD_DATE = new Date('2025-11-01').getTime()
 
 /**
  * Lấy thông tin phiên bản mới nhất từ database
  */
-export async function getLatestVersion() {
+async function getLatestVersion() {
   try {
     const reachable = await isSupabaseReachable('rest', 1200)
     if (!reachable) return null
@@ -38,7 +40,7 @@ export async function getLatestVersion() {
  * So sánh 2 phiên bản (format: major.minor.patch)
  * @returns 1 nếu v1 > v2, -1 nếu v1 < v2, 0 nếu bằng nhau
  */
-export function compareVersions(v1, v2) {
+function compareVersions(v1, v2) {
   const parts1 = v1.split('.').map(Number)
   const parts2 = v2.split('.').map(Number)
 
@@ -52,7 +54,7 @@ export function compareVersions(v1, v2) {
 /**
  * Kiểm tra xem có phiên bản mới không
  */
-export async function checkForUpdates() {
+async function checkForUpdates() {
   try {
     const latest = await getLatestVersion()
     if (!latest) return null
@@ -80,7 +82,7 @@ export async function checkForUpdates() {
 /**
  * Reload ứng dụng để cập nhật
  */
-export function reloadApp() {
+function reloadApp() {
   // Clear cache và reload
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -97,7 +99,7 @@ export function reloadApp() {
 /**
  * Lưu log lỗi vào database để debug
  */
-export async function logError(error, context = {}) {
+async function logError(error, context = {}) {
   try {
     const reachable = await isSupabaseReachable('rest', 1200)
     if (!reachable) return // skip logging when offline to avoid timeouts
@@ -129,7 +131,7 @@ export async function logError(error, context = {}) {
 /**
  * Kiểm tra và xử lý cache cũ
  */
-export function clearOldCache() {
+function clearOldCache() {
   try {
     // Clear localStorage items cũ
     const keysToCheck = Object.keys(localStorage)
@@ -168,7 +170,7 @@ export function clearOldCache() {
 /**
  * Cập nhật phiên bản trong database (chỉ Manager)
  */
-export async function updateAppVersion(versionData) {
+async function updateAppVersion(versionData) {
   try {
     const reachable = await isSupabaseReachable('rest', 1200)
     if (!reachable) throw new Error('Máy chủ không khả dụng, vui lòng thử lại khi trực tuyến')
@@ -195,7 +197,7 @@ export async function updateAppVersion(versionData) {
 /**
  * Lấy danh sách lỗi từ database
  */
-export async function getErrorLogs(limit = 50) {
+async function getErrorLogs(limit = 50) {
   try {
     const reachable = await isSupabaseReachable('rest', 1200)
     if (!reachable) return []
@@ -211,4 +213,18 @@ export async function getErrorLogs(limit = 50) {
     console.error('Error getting error logs:', error)
     return []
   }
+}
+
+// Default export a stable object to avoid named-export mismatches on mobile
+export default {
+  CURRENT_VERSION,
+  BUILD_DATE,
+  getLatestVersion,
+  compareVersions,
+  checkForUpdates,
+  reloadApp,
+  logError,
+  clearOldCache,
+  updateAppVersion,
+  getErrorLogs
 }
