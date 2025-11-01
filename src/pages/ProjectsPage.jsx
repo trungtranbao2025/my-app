@@ -12,8 +12,11 @@ import {
   DocumentArrowDownIcon,
   DocumentArrowUpIcon
 } from '@heroicons/react/24/outline'
-import { projectsApi, projectDocsApi } from '../lib/api'
+import api from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
+
+const { projectsApi, projectDocsApi } = api
+
 import { useCache } from '../hooks/useCache'
 import { formatDate, getProjectStatusColor, getProjectStatusText } from '../utils/helpers'
 import LoadingSpinner from '../components/LoadingSpinner'

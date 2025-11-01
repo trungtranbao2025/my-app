@@ -14,8 +14,11 @@ import {
   DocumentArrowDownIcon,
   DocumentArrowUpIcon
 } from '@heroicons/react/24/outline'
-import { usersApi, projectsApi, userActivityApi } from '../lib/api'
+import api from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
+
+const { usersApi, projectsApi, userActivityApi } = api
+
 import { formatDate, formatDateTime, getRoleDisplayName } from '../utils/helpers'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Pagination from '../components/Pagination'

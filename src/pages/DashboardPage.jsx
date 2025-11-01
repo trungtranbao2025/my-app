@@ -29,8 +29,10 @@ import TaskStatusPill from '../components/TaskStatusPill'
 import LoadingSkeleton from '../components/LoadingSkeleton'
 import Tooltip from '../components/Tooltip'
 import { useNotifications } from '../contexts/NotificationContext'
-import { projectsApi, projectDocsApi, tasksApi, progressApi } from '../lib/api'
+import api from '../lib/api'
 import { buildProgressSummary } from '../utils/progressSummary'
+
+const { projectsApi, projectDocsApi, tasksApi, progressApi } = api
 
 // Helpers reused from ProgressPage for progress summary
 const computeTimeProgress = (start_date, due_date) => {

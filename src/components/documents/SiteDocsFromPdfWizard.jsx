@@ -3,8 +3,11 @@ import * as pdfjsLib from 'pdfjs-dist'
 import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url'
 import { PDFDocument } from 'pdf-lib'
 import toast from 'react-hot-toast'
-import { projectDocsApi } from '../../lib/api'
+import api from '../../lib/api'
 import { PaperClipIcon, ScissorsIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline'
+
+const { projectDocsApi } = api
+
 
 /**
  * Tải PDF nhiều bản vẽ -> chọn trang -> nhập Khu vực/Tiêu đề -> Tách mỗi trang thành 1 PDF và tải lên project_documents (category='site_plan')

@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { projectsApi, progressApi, projectDocsApi } from '../lib/api'
+import api from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
+
+const { projectsApi, progressApi, projectDocsApi } = api
+
 import { formatDate } from '../utils/helpers'
 import LoadingSpinner from '../components/LoadingSpinner'
 import TaskStatusPill from '../components/TaskStatusPill'

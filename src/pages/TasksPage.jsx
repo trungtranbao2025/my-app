@@ -34,7 +34,7 @@ import {
   ExclamationTriangleIcon as ExclamationTriangleSolid,
   FireIcon
 } from '@heroicons/react/24/solid'
-import { tasksApi, projectsApi, usersApi, taskProposalsApi } from '../lib/api'
+import api from '../lib/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useNotifications } from '../contexts/NotificationContext'
 import { 
@@ -58,6 +58,9 @@ import { hasReminderPreferences, ensureDefaultReminderPreferences } from '../uti
 import ExcelService from '../utils/excelService'
 import PortalDropdown from '../components/PortalDropdown'
 import { supabase } from '../lib/supabase'
+
+// Destructure APIs from default export for cleaner code
+const { tasksApi, projectsApi, usersApi, taskProposalsApi } = api
 
 const TasksPage = () => {
   const { profile } = useAuth()

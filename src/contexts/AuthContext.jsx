@@ -1,7 +1,9 @@
 /* @refresh reset */
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { supabase, SUPABASE_URL } from '../lib/supabase'
-import { userActivityApi } from '../lib/api'
+import api from '../lib/api'
+
+const { userActivityApi } = api
 
 const AuthContext = createContext()
 

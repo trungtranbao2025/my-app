@@ -25,7 +25,7 @@ const getEphemeralClient = () => {
 }
 
 // Projects API
-export const projectsApi = {
+const projectsApi = {
   // Get all projects (optimized - only basic info)
   getAll: async () => {
     const { data, error } = await supabase.rpc('list_projects_basic')
@@ -230,7 +230,7 @@ export const projectsApi = {
 }
 
 // Tasks API
-export const tasksApi = {
+const tasksApi = {
   // Get all tasks (with permissions)
   getAll: async () => {
     const { data, error } = await supabase.rpc('list_tasks_overview')
@@ -588,7 +588,7 @@ export const tasksApi = {
 
 // Progress Items API (independent from tasks)
 // Table: progress_items (create via SQL if not exists)
-export const progressApi = {
+const progressApi = {
   _isNoTableError: (error) => {
     try {
       const code = error?.code || error?.details || ''
@@ -727,12 +727,10 @@ export const progressApi = {
     if (error) throw error
     return data
   },
-
-  // ...existing code...
 }
 
 // Users API
-export const usersApi = {
+const usersApi = {
   // Get all users
   getAll: async () => {
     // Use RPC to avoid deep join recursion
@@ -999,7 +997,7 @@ export const usersApi = {
 }
 
 // Reports API
-export const reportsApi = {
+const reportsApi = {
   // Get dashboard statistics
   getDashboardStats: async () => {
     const { data, error } = await supabase
@@ -1067,7 +1065,7 @@ export const reportsApi = {
 }
 
 // Notifications API
-export const notificationsApi = {
+const notificationsApi = {
   // Get user notifications
   getUserNotifications: async (userId) => {
     const { data, error } = await supabase
@@ -1119,7 +1117,7 @@ export const notificationsApi = {
 }
 
 // Lightweight API for Dashboard/Reports (faster loading with minimal JOINs)
-export const lightApi = {
+const lightApi = {
   // Get projects summary (no heavy JOINs)
   getProjectsSummary: async () => {
     const { data, error } = await supabase
@@ -1155,7 +1153,7 @@ export const lightApi = {
 }
 
 // Task Proposals API
-export const taskProposalsApi = {
+const taskProposalsApi = {
   // Get all proposals (for current user)
   getAll: async () => {
     const { data, error } = await supabase.rpc('list_task_proposals', { p_mode: 'all' })
@@ -1278,7 +1276,7 @@ export const taskProposalsApi = {
 }
 
 // Project Documents API (Meeting Minutes and other categories)
-export const projectDocsApi = {
+const projectDocsApi = {
   // List documents for a project with optional search and sorting
   // opts: { search?: string, category?: string, sort?: 'meeting_desc' | 'meeting_asc' | 'created_desc' | 'created_asc' }
   list: async (projectId, opts = {}) => {
@@ -1503,7 +1501,7 @@ export const projectDocsApi = {
 }
 
 // User Activity API (top-level)
-export const userActivityApi = {
+const userActivityApi = {
   // Get activity summary for all users (manager/admin only)
   async getSummary() {
     // Use visible scope RPC: managers/admin see all; others see self + shared projects
@@ -1528,7 +1526,7 @@ export const userActivityApi = {
 }
 
 // History API
-export const historyApi = {
+const historyApi = {
   // List history entries with optional filters
   list: async ({ projectId = null, entityType = null, entityId = null, limit = 200 } = {}) => {
     let q = supabase.from('entity_history').select('*').order('created_at', { ascending: false })
@@ -1554,9 +1552,23 @@ export const historyApi = {
       p_entity_type: entityType,
       p_entity_id: entityId,
       p_version: version,
+      p_entity_id: entityId,
+      p_version: version,
       p_reason: reason
     })
     if (error) throw error
     return data
   }
+}
+
+// Default export to avoid Android WebView named-export bundling issues
+export default {
+  projectsApi,
+  tasksApi,
+  usersApi,
+  projectMembersApi,
+  remindersApi,
+  notificationsApi,
+  companyApi,
+  historyApi
 }

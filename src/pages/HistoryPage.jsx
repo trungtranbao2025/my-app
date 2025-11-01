@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { historyApi, projectsApi, usersApi } from '../lib/api'
+import api from '../lib/api'
 import { formatDateTime } from '../utils/helpers'
 import toast from 'react-hot-toast'
 
@@ -20,8 +20,8 @@ const HistoryPage = () => {
       try {
         setLoading(true)
         const [hist, prj] = await Promise.all([
-          historyApi.list({ limit: 200 }),
-          projectsApi.getAll().catch(() => [])
+          api.historyApi.list({ limit: 200 }),
+          api.projectsApi.getAll().catch(() => [])
         ])
         setItems(hist)
         setProjects(prj || [])
@@ -29,7 +29,7 @@ const HistoryPage = () => {
         const actorIds = Array.from(new Set((hist || []).map(h => h.actor_id).filter(Boolean)))
         if (actorIds.length) {
           try {
-            const nameMap = await usersApi.getNamesByIds(actorIds)
+            const nameMap = await api.usersApi.getNamesByIds(actorIds)
             setActorMap(nameMap || {})
           } catch (e) {
             console.warn('Không thể tải tên người dùng cho lịch sử:', e)
@@ -50,11 +50,11 @@ const HistoryPage = () => {
   const onApply = async (h) => {
     if (!window.confirm('Khôi phục phiên bản này?')) return
     try {
-      const res = await historyApi.apply(h.id, 'manual restore from UI')
+      const res = await api.historyApi.apply(h.id, 'manual restore from UI')
       if (res && res.startsWith('OK')) toast.success('Đã khôi phục')
       else toast.error(res || 'Khôi phục thất bại')
       // reload after restore
-      const hist = await historyApi.list({ limit: 200 })
+      const hist = await api.historyApi.list({ limit: 200 })
       setItems(hist)
     } catch (e) {
       console.error(e)
