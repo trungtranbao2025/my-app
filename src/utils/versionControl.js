@@ -7,8 +7,8 @@ import { supabase } from '../lib/supabase'
 import { isSupabaseReachable } from './network'
 
 // Phiên bản hiện tại của ứng dụng (cập nhật mỗi khi release)
-export const CURRENT_VERSION = '1.0.1'
-export const BUILD_DATE = new Date('2025-10-31').getTime()
+export const CURRENT_VERSION = '1.0.2'
+export const BUILD_DATE = new Date('2025-11-01').getTime()
 
 /**
  * Lấy thông tin phiên bản mới nhất từ database

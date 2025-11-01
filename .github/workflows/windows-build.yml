@@ -1,0 +1,65 @@
+name: Build Windows (Electron)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows (electron-builder)
+        env:
+          # Avoid code signing on CI unless provided via secrets
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run electron:build:win
+
+      - name: Prepare ASCII artifact names (no spaces/accent)
+        id: prep
+        shell: pwsh
+        run: |
+          $pkg = Get-Content package.json | ConvertFrom-Json
+          $version = $pkg.version
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          $dist = "dist-electron"
+          $setupSrc = Join-Path $dist "IBST BIM - Quản lý Dự án-$version-Setup.exe"
+          $portableSrc = Join-Path $dist "IBST BIM - Quản lý Dự án-$version-Portable.exe"
+          $setupDst = Join-Path $dist "IBST-BIM-QLDA-Setup-$version.exe"
+          $portableDst = Join-Path $dist "IBST-BIM-QLDA-Portable-$version.exe"
+          if (Test-Path $setupSrc) { Copy-Item $setupSrc $setupDst -Force }
+          if (Test-Path $portableSrc) { Copy-Item $portableSrc $portableDst -Force }
+
+      - name: Upload artifacts (workflow artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe-${{ steps.prep.outputs.version }}
+          path: |
+            dist-electron/*.exe
+            dist-electron/*.blockmap
+
+      - name: Publish GitHub Release assets (tag push only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist-electron/*.exe
+            dist-electron/*.blockmap
+          generate_release_notes: true
+          fail_on_unmatched_files: false

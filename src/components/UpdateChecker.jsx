@@ -105,6 +105,17 @@ const UpdateChecker = () => {
     }, 2000)
   }
 
+  // Link tải bản Windows trên GitHub Releases
+  const getWindowsReleaseUrl = () => {
+    const owner = 'trungtranbao2025'
+    const repo = 'my-app'
+    // Trỏ thẳng tới tag cụ thể nếu biết phiên bản; fallback về trang latest
+    if (updateInfo?.latestVersion) {
+      return `https://github.com/${owner}/${repo}/releases/tag/v${updateInfo.latestVersion}`
+    }
+    return `https://github.com/${owner}/${repo}/releases/latest`
+  }
+
   const handleDismiss = () => {
     if (!updateInfo?.forceUpdate) {
       setShowBanner(false)
@@ -149,6 +160,16 @@ const UpdateChecker = () => {
               <ArrowPathIcon className="h-4 w-4" />
               Cập nhật ngay
             </button>
+            {/* Nút mở trang phát hành để tải bộ cài Windows */}
+            <a
+              href={getWindowsReleaseUrl()}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-2 bg-blue-600/10 text-white/90 border border-white/20 rounded-lg font-medium hover:bg-blue-600/20 transition-colors"
+              title="Mở trang phát hành để tải bộ cài đặt Windows"
+            >
+              Tải bản Windows
+            </a>
             {updateInfo.forceUpdate && (
               <button
                 onClick={() => {

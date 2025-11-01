@@ -1812,9 +1812,6 @@ const TasksPage = () => {
                   <th scope="col" className="w-[14%] sm:w-[10%] md:w-[8%] px-3 py-2.5 text-left text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Hạn
                   </th>
-                  <th scope="col" className="w-[10%] md:w-[9%] px-3 py-2.5 text-left text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider hidden xl:table-cell">
-                    Tự đánh giá
-                  </th>
                   <th scope="col" className="w-[20%] sm:w-[18%] md:w-[16%] px-3 py-2.5 text-left text-[10px] sm:text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Trạng thái
                   </th>
@@ -1826,7 +1823,7 @@ const TasksPage = () => {
               <tbody className="divide-y divide-gray-100">
                 {filteredTasks.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="px-4 py-12 text-center">
+                    <td colSpan="8" className="px-4 py-12 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <div className="p-4 bg-gray-100 rounded-full mb-4">
                           <ClipboardDocumentListIcon className="w-12 h-12 text-gray-400" />
@@ -1938,25 +1935,7 @@ const TasksPage = () => {
                           </div>
                         </td>
 
-                        {/* Self Assessment */}
-                        <td className="px-3 py-2 hidden xl:table-cell">
-                          <div className="flex items-center gap-1">
-                            <input
-                              type="number"
-                              value={task.self_assessment_percent || 0}
-                              onChange={(e) => handleSelfAssessmentChange(task, e.target.value)}
-                              disabled={!canEditTask(task)}
-                              min="0"
-                              max="100"
-                              className={`w-16 px-2 py-1 text-xs font-semibold border rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
-                                (task.self_assessment_percent || 0) < progressPercent 
-                                  ? 'text-red-600 font-bold border-red-300 bg-red-50' 
-                                  : 'text-gray-900 border-gray-300 bg-white'
-                              } disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60`}
-                            />
-                            <span className="text-xs text-gray-500">%</span>
-                          </div>
-                        </td>
+                        {/** Cột Tự đánh giá đã được loại bỏ */}
 
                         {/* Status & Progress Bar */}
                         <td className="px-3 py-2">

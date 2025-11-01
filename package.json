@@ -1,7 +1,7 @@
 {
   "name": "app-qlda",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Hệ thống Quản lý Dự án - Tư vấn & Giám sát Xây dựng",
   "author": "Your Company",
   "main": "electron/main.cjs",
