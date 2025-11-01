@@ -11,11 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-      ANDROID_KEY_ALIAS_PASSWORD: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
 
     steps:
       - name: Checkout
@@ -55,63 +50,18 @@ jobs:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Set signing flag (SIGNING_ENABLED)
-        shell: bash
-        run: |
-          if [ -n "${ANDROID_KEYSTORE_BASE64}" ] && [ -n "${ANDROID_KEYSTORE_PASSWORD}" ] && [ -n "${ANDROID_KEY_ALIAS}" ] && [ -n "${ANDROID_KEY_ALIAS_PASSWORD}" ]; then
-            echo "SIGNING_ENABLED=true" >> $GITHUB_ENV
-          else
-            echo "SIGNING_ENABLED=false" >> $GITHUB_ENV
-          fi
-
-      - name: Prepare Android Keystore (if provided)
-        if: ${{ env.SIGNING_ENABLED == 'true' }}
-        run: |
-          mkdir -p android/app
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
-
-      - name: Configure Gradle signing for Release (if keystore provided)
-        if: ${{ env.SIGNING_ENABLED == 'true' }}
-        working-directory: android/app
-        run: |
-          cat >> build.gradle <<'EOF'
-          def env = System.getenv()
-          afterEvaluate {
-              def releaseConfig = android.signingConfigs.findByName("release") ?: android.signingConfigs.create("release")
-              releaseConfig.storeFile = file(env["ANDROID_SIGNING_STORE_FILE"])
-              releaseConfig.storePassword = env["ANDROID_SIGNING_STORE_PASSWORD"]
-              releaseConfig.keyAlias = env["ANDROID_SIGNING_KEY_ALIAS"]
-              releaseConfig.keyPassword = env["ANDROID_SIGNING_KEY_PASSWORD"]
-              android.buildTypes.release.signingConfig = releaseConfig
-          }
-          EOF
-
-      - name: Build Signed Release AAB (if keystore provided)
-        if: ${{ env.SIGNING_ENABLED == 'true' }}
-        working-directory: android
-        env:
-          ANDROID_SIGNING_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
-          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
-        run: ./gradlew bundleRelease
-
-      - name: Upload Signed Release AAB (if exists)
-        uses: actions/upload-artifact@v4
+      - name: Sign Release Build (if secrets are present)
+        if: |
+          secrets.ANDROID_KEYSTORE_BASE64 != '' &&
+          secrets.ANDROID_KEYSTORE_PASSWORD != '' &&
+          secrets.ANDROID_KEY_ALIAS != '' &&
+          secrets.ANDROID_KEY_ALIAS_PASSWORD != ''
+        uses: ./.github/actions/android-sign
         with:
-          name: app-release-aab-signed
-          path: android/app/build/outputs/bundle/release/app-release.aab
-          if-no-files-found: ignore
-
-      - name: Build Signed Release APK (if keystore provided)
-        if: ${{ env.SIGNING_ENABLED == 'true' }}
-        working-directory: android
-        env:
-          ANDROID_SIGNING_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
-          ANDROID_SIGNING_STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          ANDROID_SIGNING_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          ANDROID_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
-        run: ./gradlew assembleRelease
+          keystore-base64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          keystore-password: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          key-alias-password: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
 
       - name: Upload Signed Release APK (if exists)
         uses: actions/upload-artifact@v4

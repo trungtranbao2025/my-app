@@ -1,0 +1,59 @@
+name: 'Sign Android Build'
+description: 'Signs an Android AAB and APK using a provided keystore'
+inputs:
+  keystore-base64:
+    description: 'The base64 encoded keystore file'
+    required: true
+  keystore-password:
+    description: 'The password for the keystore'
+    required: true
+  key-alias:
+    description: 'The alias of the key in the keystore'
+    required: true
+  key-alias-password:
+    description: 'The password for the key alias'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Prepare Android Keystore
+      shell: bash
+      run: |
+        mkdir -p android/app
+        echo "${{ inputs.keystore-base64 }}" | base64 -d > android/app/release.keystore
+
+    - name: Configure Gradle signing for Release
+      shell: bash
+      working-directory: android/app
+      run: |
+        cat >> build.gradle <<'EOF'
+        def env = System.getenv()
+        afterEvaluate {
+            def releaseConfig = android.signingConfigs.findByName("release") ?: android.signingConfigs.create("release")
+            releaseConfig.storeFile = file(env["ANDROID_SIGNING_STORE_FILE"])
+            releaseConfig.storePassword = env["ANDROID_SIGNING_STORE_PASSWORD"]
+            releaseConfig.keyAlias = env["ANDROID_SIGNING_KEY_ALIAS"]
+            releaseConfig.keyPassword = env["ANDROID_SIGNING_KEY_PASSWORD"]
+            android.buildTypes.release.signingConfig = releaseConfig
+        }
+        EOF
+
+    - name: Build Signed Release AAB
+      shell: bash
+      working-directory: android
+      env:
+        ANDROID_SIGNING_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
+        ANDROID_SIGNING_STORE_PASSWORD: ${{ inputs.keystore-password }}
+        ANDROID_SIGNING_KEY_ALIAS: ${{ inputs.key-alias }}
+        ANDROID_SIGNING_KEY_PASSWORD: ${{ inputs.key-alias-password }}
+      run: ./gradlew bundleRelease
+
+    - name: Build Signed Release APK
+      shell: bash
+      working-directory: android
+      env:
+        ANDROID_SIGNING_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
+        ANDROID_SIGNING_STORE_PASSWORD: ${{ inputs.keystore-password }}
+        ANDROID_SIGNING_KEY_ALIAS: ${{ inputs.key-alias }}
+        ANDROID_SIGNING_KEY_PASSWORD: ${{ inputs.key-alias-password }}
+      run: ./gradlew assembleRelease
