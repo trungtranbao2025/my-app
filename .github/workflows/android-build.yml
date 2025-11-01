@@ -55,14 +55,23 @@ jobs:
           name: app-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Set signing flag (SIGNING_ENABLED)
+        shell: bash
+        run: |
+          if [ -n "${ANDROID_KEYSTORE_BASE64}" ] && [ -n "${ANDROID_KEYSTORE_PASSWORD}" ] && [ -n "${ANDROID_KEY_ALIAS}" ] && [ -n "${ANDROID_KEY_ALIAS_PASSWORD}" ]; then
+            echo "SIGNING_ENABLED=true" >> $GITHUB_ENV
+          else
+            echo "SIGNING_ENABLED=false" >> $GITHUB_ENV
+          fi
+
       - name: Prepare Android Keystore (if provided)
-        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        if: ${{ env.SIGNING_ENABLED == 'true' }}
         run: |
           mkdir -p android/app
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
 
       - name: Configure Gradle signing for Release (if keystore provided)
-        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        if: ${{ env.SIGNING_ENABLED == 'true' }}
         working-directory: android/app
         run: |
           cat >> build.gradle <<'EOF'
@@ -78,7 +87,7 @@ jobs:
           EOF
 
       - name: Build Signed Release AAB (if keystore provided)
-        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        if: ${{ env.SIGNING_ENABLED == 'true' }}
         working-directory: android
         env:
           ANDROID_SIGNING_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
@@ -95,7 +104,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Build Signed Release APK (if keystore provided)
-        if: env.ANDROID_KEYSTORE_BASE64 != ''
+        if: ${{ env.SIGNING_ENABLED == 'true' }}
         working-directory: android
         env:
           ANDROID_SIGNING_STORE_FILE: ${{ github.workspace }}/android/app/release.keystore
