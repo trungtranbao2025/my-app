@@ -35,7 +35,13 @@ jobs:
           java-version: '17'
 
       - name: Add Android platform (Capacitor)
-        run: npx cap add android
+        shell: bash
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          else
+            echo "android/ already exists, skipping 'cap add android'"
+          fi
 
       - name: Sync Android
         run: npx cap sync android
