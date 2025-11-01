@@ -130,11 +130,17 @@ jobs:
           path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: ignore
 
-      - name: Create GitHub Release and attach artifacts (on tag)
+      - name: Create GitHub Release and attach Debug APK (on tag)
         if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Attach signed Release artifacts to GitHub Release (on tag, when signing)
+        if: startsWith(github.ref, 'refs/tags/') && steps.secrets.outputs.signing_enabled == 'true'
         uses: softprops/action-gh-release@v2
         with:
           files: |
             android/app/build/outputs/bundle/release/app-release.aab
             android/app/build/outputs/apk/release/app-release.apk
-            android/app/build/outputs/apk/debug/app-debug.apk
