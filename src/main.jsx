@@ -9,19 +9,24 @@ import { NotificationProvider } from './contexts/NotificationContext'
 // import { AppInitializer } from './components/AppInitializer'
 import ErrorBoundary from './components/ErrorBoundary'
 
-// Register service worker for offline support and faster loading
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js')
-      .then((registration) => {
-        console.log('✅ Service Worker registered:', registration.scope)
-      })
-      .catch((error) => {
-        console.log('❌ Service Worker registration failed:', error)
-      })
-  })
-}
+// Register service worker for offline support only on web browser
+// Avoid registering inside Capacitor/Electron where /sw.js may not exist
+try {
+  const isCapacitor = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.getPlatform === 'function' && window.Capacitor.getPlatform() !== 'web'
+  const isElectron = typeof window !== 'undefined' && !!window.electron
+  if (!isCapacitor && !isElectron && 'serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js')
+        .then((registration) => {
+          console.log('✅ Service Worker registered:', registration.scope)
+        })
+        .catch((error) => {
+          console.log('❌ Service Worker registration failed:', error)
+        })
+    })
+  }
+} catch {}
 
 // Bind F5 to hard reload (clear cache + reload) via Electron
 if (typeof window !== 'undefined' && window.electron && window.electron.hardReload) {
