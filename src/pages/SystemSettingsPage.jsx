@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { 
-  updateAppVersion, 
-  getErrorLogs, 
-  CURRENT_VERSION,
-  clearOldCache 
-} from '../utils/versionControl'
+// Namespace import to avoid named-export mismatch in mobile bundle
+import * as versionControl from '../utils/versionControl'
 import toast from 'react-hot-toast'
 import { 
   ArrowPathIcon, 
@@ -51,7 +47,7 @@ const SystemSettingsPage = () => {
   const loadErrorLogs = async () => {
     try {
       // No need to set loading here, authLoading handles initial load
-      const logs = await getErrorLogs(100)
+  const logs = await versionControl.getErrorLogs(100)
       setErrorLogs(logs)
     } catch (error) {
       console.error('Error loading error logs:', error)
@@ -76,7 +72,7 @@ const SystemSettingsPage = () => {
 
     try {
       setSaving(true)
-      await updateAppVersion(versionData)
+  await versionControl.updateAppVersion(versionData)
       toast.success('Cập nhật phiên bản thành công! Người dùng sẽ được thông báo.')
       setVersionData({ version: '', releaseNotes: '', forceUpdate: false })
     } catch (error) {
@@ -208,7 +204,7 @@ const SystemSettingsPage = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Cập nhật phiên bản</h2>
-              <p className="text-sm text-gray-600">Phiên bản hiện tại: {CURRENT_VERSION}</p>
+              <p className="text-sm text-gray-600">Phiên bản hiện tại: {versionControl.CURRENT_VERSION}</p>
             </div>
           </div>
 

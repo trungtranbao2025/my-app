@@ -1,5 +1,6 @@
 import React from 'react'
-import { logError } from '../utils/versionControl'
+// Namespace import to avoid named-export issues on some bundlers
+import * as versionControl from '../utils/versionControl'
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -15,7 +16,7 @@ class ErrorBoundary extends React.Component {
     console.error('ErrorBoundary caught an error:', error, errorInfo)
     
     // Log error to database
-    logError(error, {
+    versionControl.logError(error, {
       componentStack: errorInfo.componentStack,
       errorBoundary: true
     }).catch(err => {
