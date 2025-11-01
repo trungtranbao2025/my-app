@@ -1,5 +1,7 @@
 // Lightweight helpers to inspect and trigger the reminders pipeline from the UI
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 
 // Count pending reminders for current user (safe under RLS)
 export async function getMyPendingRemindersCount(userId) {

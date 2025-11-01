@@ -2,7 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as pdfjsLib from 'pdfjs-dist'
 import RBush from 'rbush'
 import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import { PrinterIcon, DocumentArrowDownIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
 
 // Minimal 2D layer viewer

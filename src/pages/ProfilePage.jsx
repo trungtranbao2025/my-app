@@ -4,7 +4,9 @@ import { useAuth } from '../contexts/AuthContext'
 import { UserCircleIcon, EnvelopeIcon, CalendarIcon, BriefcaseIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { formatDate } from '../utils/helpers'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 
 const ProfilePage = () => {
   const { profile, user, updateProfile, fetchProfile } = useAuth()

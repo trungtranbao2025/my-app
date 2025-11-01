@@ -3,7 +3,9 @@
  * Tạo và quản lý nhắc việc tự động dựa trên cài đặt người dùng
  */
 
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 
 /**
  * Lấy cấu hình nhắc việc của người dùng

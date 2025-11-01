@@ -1,4 +1,6 @@
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import { createClient } from '@supabase/supabase-js'
 
 // Ephemeral in-memory storage to avoid touching global session when creating users

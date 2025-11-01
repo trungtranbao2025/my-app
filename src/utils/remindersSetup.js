@@ -1,4 +1,6 @@
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 
 /**
  * Ensures that a user has a default reminder preference record.

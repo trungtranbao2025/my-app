@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import supabaseLib from '../../lib/supabase'
+
+const { supabase } = supabaseLib
 
 /**
  * Danh sách bản vẽ với tìm kiếm/lọc

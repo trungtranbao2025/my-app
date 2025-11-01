@@ -3,7 +3,9 @@
  * Kiểm tra phiên bản và tự động cập nhật ứng dụng
  */
 
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import { isSupabaseReachable } from './network'
 
 // Phiên bản hiện tại của ứng dụng (cập nhật mỗi khi release)

@@ -98,7 +98,7 @@ const authOptionsOffline = {
   flowType: 'pkce'
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: OFFLINE_INIT ? authOptionsOffline : authOptionsOnline,
   realtime: {
     params: {
@@ -113,9 +113,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 })
 
-  // Export URL for lightweight connectivity checks elsewhere
-  export const SUPABASE_URL = supabaseUrl
-  export const SUPABASE_ANON_KEY = supabaseAnonKey
+// Khi có mạng trở lại, cố gắng khởi tạo lại session (nếu có)
 
 // Khi có mạng trở lại, cố gắng khởi tạo lại session (nếu có)
 if (typeof window !== 'undefined') {
@@ -136,4 +134,11 @@ if (typeof window !== 'undefined') {
 if (typeof window !== 'undefined') {
   window.supabase = supabase
   console.log('✅ Supabase client exposed to window.supabase for debugging')
+}
+
+// Export everything as default to fix Android WebView bundling
+export default {
+  supabase,
+  SUPABASE_URL: supabaseUrl,
+  SUPABASE_ANON_KEY: supabaseAnonKey
 }

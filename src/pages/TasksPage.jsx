@@ -57,7 +57,9 @@ import { getMyPendingRemindersCount, runReminderSchedulerNow } from '../utils/re
 import { hasReminderPreferences, ensureDefaultReminderPreferences } from '../utils/remindersSetup'
 import ExcelService from '../utils/excelService'
 import PortalDropdown from '../components/PortalDropdown'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 
 // Destructure APIs from default export for cleaner code
 const { tasksApi, projectsApi, usersApi, taskProposalsApi } = api

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import { isSupabaseReachable, onNextOnline } from '../utils/network'
 import toast from 'react-hot-toast'
 import { BuildingOfficeIcon, PhotoIcon } from '@heroicons/react/24/outline'

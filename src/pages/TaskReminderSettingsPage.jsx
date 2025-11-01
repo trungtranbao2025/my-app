@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'react-hot-toast'
 import { BellIcon, ClockIcon, CalendarIcon, CheckCircleIcon, PlusIcon, XMarkIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline'

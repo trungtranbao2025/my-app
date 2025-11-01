@@ -21,7 +21,9 @@ import {
   FolderArrowDownIcon,
   InformationCircleIcon
 } from '@heroicons/react/24/outline'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 // Removed reportsApi heavy multi calls; replaced by single dashboard_overview RPC
 import { useAuth } from '../contexts/AuthContext'
 import { formatDate, getProjectStatusColor, getProjectStatusText } from '../utils/helpers'

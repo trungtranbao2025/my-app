@@ -1,4 +1,6 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { SUPABASE_URL, SUPABASE_ANON_KEY } = supabaseLib
 
 /**
  * Lightweight connectivity checks to Supabase endpoints to avoid long timeouts

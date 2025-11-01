@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import supabaseLib from "../lib/supabase";
+
+const { supabase } = supabaseLib;
 
 export default function TaskManager({ userId }) {
   const [tasks, setTasks] = useState([]);

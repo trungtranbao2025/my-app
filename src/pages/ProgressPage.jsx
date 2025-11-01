@@ -11,7 +11,9 @@ import TaskStatusPill from '../components/TaskStatusPill'
 import { ExcelService } from '../utils/excelService'
 import PortalDropdown from '../components/PortalDropdown'
 import PdfLayerViewer from '../components/PdfLayerViewer'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import SiteDocsFromPdfWizard from '../components/documents/SiteDocsFromPdfWizard'
 import TooltipIcon from '../components/TooltipIcon'
 import {

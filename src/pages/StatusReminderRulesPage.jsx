@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'react-hot-toast'
 import { PlusIcon, TrashIcon, PencilIcon } from '@heroicons/react/24/outline'

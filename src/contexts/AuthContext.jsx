@@ -1,6 +1,8 @@
 /* @refresh reset */
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase, SUPABASE_URL } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase, SUPABASE_URL } = supabaseLib
 import api from '../lib/api'
 
 const { userActivityApi } = api

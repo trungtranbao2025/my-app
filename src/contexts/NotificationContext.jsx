@@ -1,6 +1,8 @@
 /* @refresh reset */
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import supabaseLib from '../lib/supabase'
+
+const { supabase } = supabaseLib
 import { useAuth } from './AuthContext'
 import toast from 'react-hot-toast'
 import { BellIcon, CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from '@heroicons/react/24/outline'

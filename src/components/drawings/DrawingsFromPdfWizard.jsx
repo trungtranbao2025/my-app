@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import * as pdfjsLib from 'pdfjs-dist'
 import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.mjs?url'
-import { supabase } from '../../lib/supabase'
+import supabaseLib from '../../lib/supabase'
+
+const { supabase } = supabaseLib
 import toast from 'react-hot-toast'
 
 /**
