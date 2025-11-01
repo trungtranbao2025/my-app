@@ -11,12 +11,6 @@ on:
 jobs:
   build:
     runs-on: macos-latest
-    env:
-      IOS_CERT_P12_BASE64: ${{ secrets.IOS_CERT_P12_BASE64 }}
-      IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
-      IOS_MOBILEPROVISION_BASE64: ${{ secrets.IOS_MOBILEPROVISION_BASE64 }}
-      IOS_TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
-      IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
 
     steps:
       - name: Checkout
@@ -40,9 +34,21 @@ jobs:
       - name: Sync iOS
         run: npx cap sync ios
 
-      - name: Install Cocoapods
+      - name: Install CocoaPods
         working-directory: ios/App
-        run: pod install
+        run: |
+          sudo gem install cocoapods --no-document || true
+          pod install --repo-update
+
+      - name: Check signing secrets
+        id: secrets
+        shell: bash
+        run: |
+          if [[ -n "${{ secrets.IOS_CERT_P12_BASE64 }}" && -n "${{ secrets.IOS_CERT_PASSWORD }}" && -n "${{ secrets.IOS_MOBILEPROVISION_BASE64 }}" && -n "${{ secrets.IOS_TEAM_ID }}" && -n "${{ secrets.IOS_BUNDLE_ID }}" ]]; then
+            echo "signing_enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "signing_enabled=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build iOS (xcodebuild - Debug)
         run: |
@@ -55,27 +61,31 @@ jobs:
             build
 
       - name: Import code signing certificate (if provided)
-        if: env.IOS_CERT_P12_BASE64 != ''
+        if: steps.secrets.outputs.signing_enabled == 'true'
         uses: apple-actions/import-codesign-certs@v2
         with:
           p12-file-base64: ${{ secrets.IOS_CERT_P12_BASE64 }}
           p12-password: ${{ secrets.IOS_CERT_PASSWORD }}
 
       - name: Install Provisioning Profile (if provided)
-        if: env.IOS_MOBILEPROVISION_BASE64 != ''
+        if: steps.secrets.outputs.signing_enabled == 'true'
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$IOS_MOBILEPROVISION_BASE64" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+          # macOS base64 uses -D for decode; try multiple flags for compatibility
+          (echo "${{ secrets.IOS_MOBILEPROVISION_BASE64 }}" | base64 -D > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision) \
+          || (echo "${{ secrets.IOS_MOBILEPROVISION_BASE64 }}" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision) \
+          || (echo "${{ secrets.IOS_MOBILEPROVISION_BASE64 }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision)
 
-      - name: Archive iOS (Release, signed if cert provided)
+      - name: Archive iOS (Release, only when signing is configured)
+        if: steps.secrets.outputs.signing_enabled == 'true'
         run: |
           set -e
           xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
             -archivePath build/App.xcarchive \
-            DEVELOPMENT_TEAM=$IOS_TEAM_ID \
-            PRODUCT_BUNDLE_IDENTIFIER=$IOS_BUNDLE_ID \
+            DEVELOPMENT_TEAM=${{ secrets.IOS_TEAM_ID }} \
+            PRODUCT_BUNDLE_IDENTIFIER=${{ secrets.IOS_BUNDLE_ID }} \
             archive
 
       - name: Create ExportOptions.plist
@@ -100,7 +110,7 @@ jobs:
           EOF
 
       - name: Export signed IPA (if signing configured)
-        if: env.IOS_CERT_P12_BASE64 != ''
+        if: steps.secrets.outputs.signing_enabled == 'true'
         run: |
           set -e
           xcodebuild -exportArchive \
@@ -115,11 +125,27 @@ jobs:
           path: build/export/*.ipa
           if-no-files-found: ignore
 
-      - name: Upload unsigned Archive (fallback)
+      - name: Build Release for Simulator and zip .app (fallback when unsigned)
+        if: steps.secrets.outputs.signing_enabled != 'true'
+        run: |
+          set -e
+          xcodebuild -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/DerivedData \
+            build
+          cd build/DerivedData/Build/Products/Release-iphonesimulator
+          ditto -c -k --sequesterRsrc --keepParent App.app ../../../../App-simulator.zip
+
+      - name: Upload unsigned artifacts (simulator build)
         uses: actions/upload-artifact@v4
         with:
-          name: ios-archive
-          path: build/App.xcarchive
+          name: ios-simulator-app
+          path: |
+            build/DerivedData/Build/Products/Release-iphonesimulator/App.app
+            build/App-simulator.zip
           if-no-files-found: ignore
 
       - name: Create GitHub Release and attach artifacts (on tag)
@@ -128,4 +154,4 @@ jobs:
         with:
           files: |
             build/export/*.ipa
-            build/App.xcarchive
+            build/App-simulator.zip
