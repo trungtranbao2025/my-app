@@ -98,13 +98,40 @@ jobs:
             echo "Zipaligning APK..."
             "$ZIPALIGN" -v -p 4 "$APK_DIR/app-release-unsigned.apk" "$APK_DIR/app-release-aligned.apk"
             echo "Signing APK..."
+            KEY_PASS="${ANDROID_KEY_PASSWORD:-$ANDROID_KEYSTORE_PASSWORD}"
+            set +e
             "$APKSIGNER" sign \
               --ks "$ANDROID_KEYSTORE" \
               --ks-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
-              --key-pass pass:"$ANDROID_KEY_PASSWORD" \
+              --key-pass pass:"$KEY_PASS" \
               --ks-key-alias "$ANDROID_KEY_ALIAS" \
               --out "$APK_DIR/app-release.apk" \
               "$APK_DIR/app-release-aligned.apk"
+            SIGN_RC=$?
+            if [ $SIGN_RC -ne 0 ]; then
+              echo "First signing attempt failed (rc=$SIGN_RC). Retrying with keystore password for key and explicit ks-type if needed..."
+              "$APKSIGNER" sign \
+                --ks "$ANDROID_KEYSTORE" \
+                --ks-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
+                --key-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
+                --ks-key-alias "$ANDROID_KEY_ALIAS" \
+                --out "$APK_DIR/app-release.apk" \
+                "$APK_DIR/app-release-aligned.apk" || \
+              "$APKSIGNER" sign \
+                --ks "$ANDROID_KEYSTORE" \
+                --ks-type JKS \
+                --ks-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
+                --key-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
+                --ks-key-alias "$ANDROID_KEY_ALIAS" \
+                --out "$APK_DIR/app-release.apk" \
+                "$APK_DIR/app-release-aligned.apk"
+              SIGN_RC=$?
+            fi
+            set -e
+            if [ $SIGN_RC -ne 0 ]; then
+              echo "ERROR: Signing failed after retries." >&2
+              exit $SIGN_RC
+            fi
             echo "Verifying signature..."
             "$APKSIGNER" verify -v "$APK_DIR/app-release.apk"
           fi
