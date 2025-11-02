@@ -310,3 +310,7 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   )
 }
+
+// Named exports only; avoid default export to prevent bundlers from dropping
+// the named export table in certain builds (observed error: "Export 'useAuth' is not defined in module").
+// Consumers should import as: `import { useAuth, AuthProvider } from '../contexts/AuthContext'`.
