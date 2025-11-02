@@ -1564,13 +1564,17 @@ const historyApi = {
 }
 
 // Default export to avoid Android WebView named-export bundling issues
+// Only include APIs that are actually defined above to prevent ReferenceError at module evaluation time.
 export default {
   projectsApi,
   tasksApi,
   usersApi,
-  projectMembersApi,
-  remindersApi,
+  progressApi,
+  projectDocsApi,
+  taskProposalsApi,
+  reportsApi,
+  lightApi,
+  userActivityApi,
   notificationsApi,
-  companyApi,
   historyApi
 }

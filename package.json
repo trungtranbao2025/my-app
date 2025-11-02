@@ -28,7 +28,14 @@
     "cap:sync": "cap sync",
     "cap:open:android": "cap open android",
     "cap:open:ios": "cap open ios",
-    "mobile:build": "vite build && cap sync"
+    "mobile:build": "vite build && cap sync",
+    "android:setup": "cap sync android",
+    "android:build:debug": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Serve -Port 5555",
+    "android:build:debug:noserve": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1",
+    "android:keystore": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-android-keystore.ps1",
+    "android:build:release": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Release",
+    "android:build:release:serve": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Release -Serve -Port 5556",
+    "android:build:aab": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-android.ps1 -Release -Bundle"
   },
   "dependencies": {
     "@capacitor/core": "^6.2.0",

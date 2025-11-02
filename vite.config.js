@@ -27,6 +27,10 @@ export default defineConfig({
     chunkSizeWarningLimit: 2000,
     sourcemap: false,
     rollupOptions: {
+      // Android WebView can be picky with multi-chunk ESM graphs and aggressive tree-shaking.
+      // To avoid "Export 'useAuth' is not defined in module" on some devices, we disable treeshaking
+      // so named exports are preserved across chunks.
+      treeshake: false,
       output: {
         format: 'es',
         entryFileNames: 'assets/index-[hash].js',
