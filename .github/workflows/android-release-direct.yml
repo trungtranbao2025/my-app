@@ -80,8 +80,35 @@ jobs:
             -PreleaseKeyPassword="$ANDROID_KEY_PASSWORD"
           echo "Listing APK outputs for debugging:"
           ls -la app/build/outputs/apk/release || true
-          # Prefer the signed APK explicitly; avoid picking *-unsigned.apk
+          # If only an unsigned APK exists, sign it manually with apksigner
           APK_DIR="app/build/outputs/apk/release"
+          if [ -f "$APK_DIR/app-release-unsigned.apk" ] && [ ! -f "$APK_DIR/app-release.apk" ]; then
+            echo "No signed APK produced by Gradle, signing unsigned APK manually..."
+            BUILD_TOOLS_DIR="$ANDROID_HOME/build-tools/34.0.0"
+            if [ ! -d "$BUILD_TOOLS_DIR" ]; then
+              echo "Installing Android build-tools 34.0.0..."
+              yes | sdkmanager "build-tools;34.0.0"
+            fi
+            ZIPALIGN="$ANDROID_HOME/build-tools/34.0.0/zipalign"
+            APKSIGNER="$ANDROID_HOME/build-tools/34.0.0/apksigner"
+            if [ ! -x "$ZIPALIGN" ] || [ ! -x "$APKSIGNER" ]; then
+              echo "Build-tools not found or not executable" >&2
+              exit 1
+            fi
+            echo "Zipaligning APK..."
+            "$ZIPALIGN" -v -p 4 "$APK_DIR/app-release-unsigned.apk" "$APK_DIR/app-release-aligned.apk"
+            echo "Signing APK..."
+            "$APKSIGNER" sign \
+              --ks "$ANDROID_KEYSTORE" \
+              --ks-pass pass:"$ANDROID_KEYSTORE_PASSWORD" \
+              --key-pass pass:"$ANDROID_KEY_PASSWORD" \
+              --ks-key-alias "$ANDROID_KEY_ALIAS" \
+              --out "$APK_DIR/app-release.apk" \
+              "$APK_DIR/app-release-aligned.apk"
+            echo "Verifying signature..."
+            "$APKSIGNER" verify -v "$APK_DIR/app-release.apk"
+          fi
+          # Prefer the signed APK explicitly; avoid picking *-unsigned.apk
           APK_CANDIDATE=""
           if [ -f "$APK_DIR/app-release.apk" ]; then
             APK_CANDIDATE="$APK_DIR/app-release.apk"
