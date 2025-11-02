@@ -62,15 +62,31 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE: ${{ github.workspace }}/release.keystore
         run: |
           cd android
-          ./gradlew assembleRelease
+          # Pass explicit signing properties as a fallback and ensure release is signed
+          ./gradlew assembleRelease \
+            -PreleaseKeystoreFile="$ANDROID_KEYSTORE" \
+            -PreleaseKeystorePassword="$ANDROID_KEYSTORE_PASSWORD" \
+            -PreleaseKeyAlias="$ANDROID_KEY_ALIAS" \
+            -PreleaseKeyPassword="$ANDROID_KEY_PASSWORD"
+          echo "Listing APK outputs for debugging:"
+          ls -la app/build/outputs/apk/release || true
+          # Export the first found APK path to env for upload step
+          APK_PATH=$(ls -1 app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1 || true)
+          if [ -z "$APK_PATH" ]; then
+            echo "No APK found under app/build/outputs/apk/release" >&2
+            exit 1
+          fi
+          echo "Found APK: $APK_PATH"
+          echo "APK_PATH=$GITHUB_WORKSPACE/android/$APK_PATH" >> $GITHUB_ENV
 
       - name: Upload APK to GitHub Release (stable tag)
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: android/app/build/outputs/apk/release/app-release.apk
+          file: ${{ env.APK_PATH }}
           asset_name: app-release.apk
           tag: android-release-latest
           release_name: Android Release Latest
@@ -84,15 +100,29 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE: ${{ github.workspace }}/release.keystore
         run: |
           cd android
-          ./gradlew bundleRelease
+          ./gradlew bundleRelease \
+            -PreleaseKeystoreFile="$ANDROID_KEYSTORE" \
+            -PreleaseKeystorePassword="$ANDROID_KEYSTORE_PASSWORD" \
+            -PreleaseKeyAlias="$ANDROID_KEY_ALIAS" \
+            -PreleaseKeyPassword="$ANDROID_KEY_PASSWORD"
+          echo "Listing AAB outputs for debugging:"
+          ls -la app/build/outputs/bundle/release || true
+          AAB_PATH=$(ls -1 app/build/outputs/bundle/release/*.aab 2>/dev/null | head -n 1 || true)
+          if [ -z "$AAB_PATH" ]; then
+            echo "No AAB found under app/build/outputs/bundle/release" >&2
+            exit 1
+          fi
+          echo "Found AAB: $AAB_PATH"
+          echo "AAB_PATH=$GITHUB_WORKSPACE/android/$AAB_PATH" >> $GITHUB_ENV
 
       - name: Upload AAB to GitHub Release (stable tag)
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: android/app/build/outputs/bundle/release/app-release.aab
+          file: ${{ env.AAB_PATH }}
           asset_name: app-release.aab
           tag: android-release-latest
           release_name: Android Release Latest
