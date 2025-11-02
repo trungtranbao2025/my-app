@@ -14,6 +14,28 @@
           const currentUrl = window.location.href
           const hasHash = currentUrl.includes('#/')
           
+          // In local development, aggressively clear old Service Workers that may
+          // cache a previous production build (which can cause module export errors
+          // like "Export 'useAuth' is not defined in module").
+          try {
+            const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+            if (isLocal && 'serviceWorker' in navigator) {
+              navigator.serviceWorker.getRegistrations().then(regs => {
+                if (regs && regs.length) {
+                  console.warn('🧹 Unregistering stale Service Workers in dev...')
+                  Promise.all(regs.map(r => r.unregister())).then(() => {
+                    // Also clear caches to avoid stale hashed assets
+                    if (window.caches && caches.keys) {
+                      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).then(() => {
+                        console.warn('🧹 Cleared SW caches')
+                      })
+                    }
+                  })
+                }
+              })
+            }
+          } catch (e) { /* no-op */ }
+
           // If we're in file:// protocol (Electron) and no hash present
           if (currentUrl.startsWith('file://') && !hasHash) {
             // Add hash and reload immediately

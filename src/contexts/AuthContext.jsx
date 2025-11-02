@@ -311,6 +311,16 @@ export const AuthProvider = ({ children }) => {
   )
 }
 
-// Named exports only; avoid default export to prevent bundlers from dropping
-// the named export table in certain builds (observed error: "Export 'useAuth' is not defined in module").
-// Consumers should import as: `import { useAuth, AuthProvider } from '../contexts/AuthContext'`.
+// Expose context and a compatibility default export to be resilient across bundlers/runtime
+export { AuthContext }
+
+// Some environments (older Android WebView/Electron combos) have exhibited
+// odd behavior with ESM export tables. Providing a default alongside named
+// exports makes the module robust if an importer accidentally default-imports.
+// Named imports remain the authoritative way:
+//   import { useAuth, AuthProvider } from '../contexts/AuthContext'
+// Default import (tolerated):
+//   import Auth from '../contexts/AuthContext'; Auth.useAuth()
+// This helps avoid "Export 'useAuth' is not defined in module" on certain stacks.
+const _default = { useAuth, AuthProvider }
+export default _default
