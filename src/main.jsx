@@ -9,21 +9,19 @@ import { NotificationProvider } from './contexts/NotificationContext'
 // import { AppInitializer } from './components/AppInitializer'
 import ErrorBoundary from './components/ErrorBoundary'
 
-// Register service worker for offline support only on web browser
-// Avoid registering inside Capacitor/Electron where /sw.js may not exist
+// Aggressively unregister service workers to avoid stale cached bundles during dev
 try {
-  const isCapacitor = typeof window !== 'undefined' && window.Capacitor && typeof window.Capacitor.getPlatform === 'function' && window.Capacitor.getPlatform() !== 'web'
-  const isElectron = typeof window !== 'undefined' && !!window.electron
-  if (!isCapacitor && !isElectron && 'serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker
-        .register('/sw.js')
-        .then((registration) => {
-          console.log('✅ Service Worker registered:', registration.scope)
-        })
-        .catch((error) => {
-          console.log('❌ Service Worker registration failed:', error)
-        })
+  if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      if (registrations?.length) {
+        console.warn('🧹 Removing existing service workers to avoid cached bundles')
+        registrations.forEach((registration) => registration.unregister())
+        if (window.caches && caches.keys) {
+          caches.keys().then((keys) => {
+            keys.forEach((key) => caches.delete(key))
+          })
+        }
+      }
     })
   }
 } catch {}
