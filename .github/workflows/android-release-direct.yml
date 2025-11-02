@@ -1,0 +1,102 @@
+name: Android Release (Direct Link)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web (Vite)
+        run: npm run build
+
+      - name: Setup Java (Temurin 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Sync web to Android
+        run: npx cap sync android
+
+      - name: Prepare signing keystore from secrets
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "${ANDROID_KEYSTORE_BASE64}" ]; then
+            echo "ANDROID_KEYSTORE_BASE64 is empty. Please add it to repo secrets." >&2
+            exit 1
+          fi
+          echo "Creating release.keystore from base64 secret"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > release.keystore
+          echo "ANDROID_KEYSTORE=$GITHUB_WORKSPACE/release.keystore" >> $GITHUB_ENV
+          # Mask sensitive values in logs
+          echo "::add-mask::${ANDROID_KEYSTORE_PASSWORD}"
+          echo "::add-mask::${ANDROID_KEY_PASSWORD}"
+
+      - name: Build Release APK
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          cd android
+          ./gradlew assembleRelease
+
+      - name: Upload APK to GitHub Release (stable tag)
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/apk/release/app-release.apk
+          asset_name: app-release.apk
+          tag: android-release-latest
+          release_name: Android Release Latest
+          overwrite: true
+          body: |
+            Automated signed Release APK from commit ${{ github.sha }}
+            Built at run ${{ github.run_id }}
+
+      - name: Build Release AAB (Play Store bundle)
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          cd android
+          ./gradlew bundleRelease
+
+      - name: Upload AAB to GitHub Release (stable tag)
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: android/app/build/outputs/bundle/release/app-release.aab
+          asset_name: app-release.aab
+          tag: android-release-latest
+          release_name: Android Release Latest
+          overwrite: true
+          body: |
+            Automated signed Release AAB from commit ${{ github.sha }}
+            Built at run ${{ github.run_id }}
