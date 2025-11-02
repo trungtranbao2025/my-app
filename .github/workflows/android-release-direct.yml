@@ -33,6 +33,15 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Add Android platform
+        run: npx cap add android
+
+      - name: Restore custom Gradle configs (preserve signing/version)
+        run: |
+          git checkout -- android/app/build.gradle || true
+          git checkout -- android/build.gradle || true
+          git checkout -- android/variables.gradle || true
+
       - name: Sync web to Android
         run: npx cap sync android
 
@@ -77,8 +86,13 @@ jobs:
           if [ -f "$APK_DIR/app-release.apk" ]; then
             APK_CANDIDATE="$APK_DIR/app-release.apk"
           else
-            # Try to find any non-unsigned release APK
-            APK_CANDIDATE=$(ls -1 $APK_DIR/*.apk 2>/dev/null | grep -v "-unsigned.apk$" | head -n 1 || true)
+            # Try to find any non-unsigned release APK without using grep
+            for f in $(ls -1 $APK_DIR/*.apk 2>/dev/null || true); do
+              case "$f" in
+                *-unsigned.apk) : ;; # skip unsigned
+                *) APK_CANDIDATE="$f"; break ;;
+              esac
+            done
           fi
           if [ -z "$APK_CANDIDATE" ]; then
             echo "No signed APK found under $APK_DIR" >&2
