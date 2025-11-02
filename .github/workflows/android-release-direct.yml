@@ -74,14 +74,23 @@ jobs:
             -PreleaseKeyPassword="$ANDROID_KEY_PASSWORD"
           echo "Listing APK outputs for debugging:"
           ls -la app/build/outputs/apk/release || true
-          # Export the first found APK path to env for upload step
-          APK_PATH=$(ls -1 app/build/outputs/apk/release/*.apk 2>/dev/null | head -n 1 || true)
-          if [ -z "$APK_PATH" ]; then
-            echo "No APK found under app/build/outputs/apk/release" >&2
+          # Prefer the signed APK explicitly; avoid picking *-unsigned.apk
+          APK_DIR="app/build/outputs/apk/release"
+          APK_CANDIDATE=""
+          if [ -f "$APK_DIR/app-release.apk" ]; then
+            APK_CANDIDATE="$APK_DIR/app-release.apk"
+          else
+            # Try to find any non-unsigned release APK
+            APK_CANDIDATE=$(ls -1 $APK_DIR/*.apk 2>/dev/null | grep -v "-unsigned.apk$" | head -n 1 || true)
+          fi
+          if [ -z "$APK_CANDIDATE" ]; then
+            echo "No signed APK found under $APK_DIR" >&2
+            echo "Directory listing:" >&2
+            ls -la "$APK_DIR" >&2 || true
             exit 1
           fi
-          echo "Found APK: $APK_PATH"
-          echo "apk_path=$GITHUB_WORKSPACE/android/$APK_PATH" >> $GITHUB_OUTPUT
+          echo "Selected APK: $APK_CANDIDATE"
+          echo "apk_path=$GITHUB_WORKSPACE/android/$APK_CANDIDATE" >> $GITHUB_OUTPUT
 
       - name: Upload APK to GitHub Release (stable tag)
         uses: svenstaro/upload-release-action@v2
